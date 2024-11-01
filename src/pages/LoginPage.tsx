@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc'; // Google icon from react-icons
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../firebase'; // Import your Firebase auth instance
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,6 +14,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Handle email and password login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -26,6 +30,17 @@ export default function LoginPage() {
     }
   };
 
+  // Handle Google sign-in
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      navigate('/browse');
+    } catch (error) {
+      setError('Google sign-in failed');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-12 p-8">
@@ -36,7 +51,10 @@ export default function LoginPage() {
           <p className="text-xl text-gray-400">Your Personal Movie Journey</p>
         </div>
 
-        <form className="space-y-8 bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-700/50" onSubmit={handleSubmit}>
+        <form
+          className="space-y-8 bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-700/50"
+          onSubmit={handleSubmit}
+        >
           {error && (
             <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-3 rounded-lg">
               <AlertCircle className="h-5 w-5" />
@@ -78,6 +96,28 @@ export default function LoginPage() {
             {isLoading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+
+        {/* Sign-Up Link */}
+        <div className="flex items-center justify-center mt-4">
+          <p className="text-gray-400">Don't have an account?</p>
+          <button
+            onClick={() => navigate('/signup')}
+            className="text-indigo-500 hover:underline ml-2"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        {/* Google Sign-In Button */}
+        <div className="flex items-center justify-center mt-6">
+          <button
+            onClick={handleGoogleLogin}
+            className="flex items-center gap-2 py-3 px-4 bg-white text-gray-800 font-medium rounded-lg transition-colors hover:bg-gray-200"
+          >
+            <FcGoogle className="h-5 w-5" /> {/* Google icon */}
+            <span>Sign in with Google</span>
+          </button>
+        </div>
       </div>
     </div>
   );

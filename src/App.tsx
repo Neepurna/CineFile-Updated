@@ -2,20 +2,28 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navigation from './components/Navigation';
 import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
+
 import HomePage from './pages/HomePage';
 import SocialPage from './pages/SocialPage';
 import CollectionsPage from './pages/CollectionsPage';
 import GamesPage from './pages/GamesPage';
 import ProfilePage from './pages/ProfilePage';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute'; // Ensure this component handles auth properly
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Redirect root path to /browse */}
           <Route path="/" element={<Navigate to="/browse" replace />} />
+          
+          {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} /> {/* New Sign-Up route */}
+
+          {/* Protected Routes */}
           <Route
             path="/browse"
             element={

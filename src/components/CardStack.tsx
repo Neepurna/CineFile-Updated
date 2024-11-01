@@ -1,8 +1,10 @@
+// CardStack.tsx
 import { useState, useEffect, useCallback } from 'react';
 import { TMDBMovie, GENRES, fetchRandomMovies } from '../services/tmdb';
 import { useSprings, animated, to as interpolate } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { Loader2, AlertCircle, Star } from 'lucide-react';
+import { useAuth } from '../context/AuthContext'; // Import the AuthContext
 
 interface CardStackProps {
   onWatched: (movie: TMDBMovie) => void;
@@ -21,6 +23,7 @@ const FLIP_DURATION = 400;
 const DOUBLE_TAP_DELAY = 300;
 
 export default function CardStack({ onWatched, onNotWatched, onReview }: CardStackProps) {
+  const { addToWatchList } = useAuth(); // Get the function from the context
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +98,12 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
         zIndex: VISIBLE_CARDS - i - 1,
       };
     });
+
+    // Add to Watch List if the card is swiped right
+    if (direction === 'right') {
+      addToWatchList(movies[index]);
+      console.log('Movie added to Watch List:', movies[index]); // Debugging
+    }
   };
 
   const handleDoubleTap = (index: number) => {
@@ -176,12 +185,10 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
     const horizontalSwipe = Math.abs(mx) > SWIPE_THRESHOLD;
 
     if (!active && (horizontalSwipe || trigger)) {
-      if (mx > 0) {
+      if (mx > 0) { // Right swipe detected
         handleCardExit(index, 'right');
-        onWatched(movies[index]);
-      } else {
+      } else { // Left swipe detected
         handleCardExit(index, 'left');
-        onNotWatched(movies[index]);
       }
     } else {
       api.start(i => {

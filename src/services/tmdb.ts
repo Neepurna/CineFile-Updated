@@ -37,7 +37,7 @@ export const GENRES: { [key: number]: string } = {
   10770: 'TV Movie',
   53: 'Thriller',
   10752: 'War',
-  37: 'Western'
+  37: 'Western',
 };
 
 export async function fetchMovies(page = 1, query?: string): Promise<TMDBResponse> {
@@ -56,23 +56,24 @@ export async function fetchMovies(page = 1, query?: string): Promise<TMDBRespons
     });
 
     const response = await fetch(`${endpoint}?${params}`);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    
+
     if (!data.results) {
       throw new Error('Invalid response format from TMDB API');
     }
 
     return {
-      results: data.results.filter((movie: TMDBMovie) => 
-        movie.poster_path && movie.release_date && movie.vote_average
+      results: data.results.filter(
+        (movie: TMDBMovie) =>
+          movie.poster_path && movie.release_date && movie.vote_average
       ),
       total_pages: data.total_pages,
-      total_results: data.total_results
+      total_results: data.total_results,
     };
   } catch (error) {
     console.error('Error fetching movies:', error);
@@ -82,21 +83,37 @@ export async function fetchMovies(page = 1, query?: string): Promise<TMDBRespons
 
 export async function fetchRandomMovies(): Promise<TMDBMovie[]> {
   try {
-    // Get a random page between 1 and 20 for more variety
     const randomPage = Math.floor(Math.random() * 20) + 1;
     const data = await fetchMovies(randomPage);
-    
-    // Shuffle the results array
+
     const shuffled = [...data.results];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    
-    // Return only movies with posters
-    return shuffled.filter(movie => movie.poster_path);
+
+    return shuffled.filter((movie) => movie.poster_path);
   } catch (error) {
     console.error('Error fetching random movies:', error);
+    throw error;
+  }
+}
+
+// New function to fetch detailed movie information
+export async function fetchMovieDetails(movieId: number): Promise<any> {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US&append_to_response=credits`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
     throw error;
   }
 }
