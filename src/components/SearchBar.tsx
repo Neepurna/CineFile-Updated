@@ -1,19 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, X } from 'lucide-react';
 import { TMDBMovie, fetchMovies } from '../services/tmdb';
-import { useNavigate } from 'react-router-dom';
 
 interface SearchBarProps {
-  onClose?: () => void;
+  onMovieSelect: (movie: TMDBMovie) => void; // Function to handle movie selection
 }
 
-export default function SearchBar({ onClose }: SearchBarProps) {
+export default function SearchBar({ onMovieSelect }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<TMDBMovie[]>([]);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const searchMovies = async () => {
@@ -41,11 +39,10 @@ export default function SearchBar({ onClose }: SearchBarProps) {
     inputRef.current?.focus();
   }, []);
 
-  const handleMovieClick = (movieId: number) => {
-    // TODO: Navigate to movie details page
+  const handleMovieClick = (movie: TMDBMovie) => {
+    onMovieSelect(movie); // Pass the selected movie to the parent
     setQuery('');
     setResults([]);
-    if (onClose) onClose();
   };
 
   const handleClear = () => {
@@ -90,7 +87,7 @@ export default function SearchBar({ onClose }: SearchBarProps) {
               {results.map((movie) => (
                 <li key={movie.id}>
                   <button
-                    onClick={() => handleMovieClick(movie.id)}
+                    onClick={() => handleMovieClick(movie)}
                     className="w-full flex items-center gap-3 p-3 hover:bg-gray-700/50 transition-colors text-left"
                   >
                     {movie.poster_path ? (

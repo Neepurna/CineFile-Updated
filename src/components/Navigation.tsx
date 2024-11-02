@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Film, Users, FolderHeart, Gamepad2, UserCircle } from 'lucide-react';
-import SearchBar from './SearchBar';
 import { useMediaQuery } from '../hooks/useMediaQuery'; // Import your custom hook for media query
 
 const navItems = [
@@ -24,11 +23,6 @@ export default function Navigation() {
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
             {/* Logo */}
             <h1 className="text-2xl font-bold text-blue-600">Cinefile</h1>
-
-            {/* Search Bar (only for desktop) */}
-            <div className="flex-1 max-w-lg mx-4">
-              <SearchBar />
-            </div>
 
             {/* Navigation Items */}
             <div className="flex items-center gap-6">

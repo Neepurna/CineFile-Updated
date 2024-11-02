@@ -52,7 +52,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
               <div className="aspect-w-2 aspect-h-3">
                 {movie.poster_path ? (
                   <img
-                    src={getImageUrl(movie.poster_path)}
+                    src={`/image-proxy${movie.poster_path}`}
                     alt={movie.title}
                     className="w-full h-full object-cover"
                     loading="lazy"

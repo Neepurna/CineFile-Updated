@@ -1,4 +1,3 @@
-// CardStack.tsx
 import { useState, useEffect, useCallback } from 'react';
 import { TMDBMovie, GENRES, fetchRandomMovies } from '../services/tmdb';
 import { useSprings, animated, to as interpolate } from '@react-spring/web';
@@ -23,7 +22,7 @@ const FLIP_DURATION = 400;
 const DOUBLE_TAP_DELAY = 300;
 
 export default function CardStack({ onWatched, onNotWatched, onReview }: CardStackProps) {
-  const { addToWatchList } = useAuth(); // Get the function from the context
+  const { addToWatchList } = useAuth();
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +101,7 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
     // Add to Watch List if the card is swiped right
     if (direction === 'right') {
       addToWatchList(movies[index]);
-      console.log('Movie added to Watch List:', movies[index]); // Debugging
+      console.log('Movie added to Watch List:', movies[index]);
     }
   };
 
@@ -178,7 +177,6 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
       return;
     }
 
-    // Only allow swipe gestures when card is not flipped
     if (flippedCard !== null) return;
 
     const trigger = velocity > 0.2;
@@ -284,12 +282,10 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                   className="w-full h-full preserve-3d"
                 >
                   {/* Front of card */}
-                  <div className={`absolute inset-0 rounded-xl shadow-xl overflow-hidden bg-gray-800 backface-hidden ${
-                    isFlipped ? 'pointer-events-none' : ''
-                  }`}>
+                  <div className={`absolute inset-0 rounded-xl shadow-xl overflow-hidden bg-gray-800 backface-hidden ${isFlipped ? 'pointer-events-none' : ''}`}>
                     {movie.poster_path ? (
                       <img
-                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                        src={`/image-proxy${movie.poster_path}`}
                         alt={movie.title}
                         className="w-full h-full object-cover"
                         draggable={false}
@@ -322,12 +318,9 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
 
                   {/* Back of card (Review) */}
                   {i === 0 && (
-                    <div className={`absolute inset-0 rounded-xl shadow-xl overflow-hidden bg-gray-800 backface-hidden rotate-y-180 ${
-                      isFlipped ? '' : 'pointer-events-none'
-                    }`}>
+                    <div className={`absolute inset-0 rounded-xl shadow-xl overflow-hidden bg-gray-800 backface-hidden rotate-y-180 ${isFlipped ? '' : 'pointer-events-none'}`}>
                       <div className="h-full p-6 flex flex-col">
                         <h3 className="text-xl font-semibold text-white mb-4">Review {movie.title}</h3>
-                        
                         <div className="mb-6">
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             Rating
@@ -340,17 +333,12 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                                 className="p-1 transition-transform hover:scale-110"
                               >
                                 <Star
-                                  className={`h-8 w-8 ${
-                                    value <= rating
-                                      ? 'text-yellow-400 fill-current'
-                                      : 'text-gray-600'
-                                  }`}
+                                  className={`h-8 w-8 ${value <= rating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`}
                                 />
                               </button>
                             ))}
                           </div>
                         </div>
-
                         <div className="mb-6 flex-1">
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             Your Review
@@ -362,7 +350,6 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                             placeholder="Share your thoughts about the movie..."
                           />
                         </div>
-
                         <div className="flex gap-3">
                           <button
                             onClick={() => handleReviewCancel(i)}

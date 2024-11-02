@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { TMDBMovie, fetchRandomMovies, fetchMovieDetails } from '../services/tmdb';
 import ReviewModal from '../components/ReviewModal';
 import CardStack from '../components/CardStack';
+import SearchBar from '../components/SearchBar';
 import { Eye, Clock, MessageSquare, XCircle } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useAuth } from '../context/AuthContext';
@@ -47,6 +48,11 @@ export default function HomePage() {
   useEffect(() => {
     loadMovies();
   }, [loadMovies]);
+
+  const handleMovieSelect = (movie: TMDBMovie) => {
+    setSelectedMovie(movie);
+    fetchDetails(movie.id);
+  };
 
   const getNextMovie = () => {
     if (movies.length > 1) {
@@ -120,6 +126,12 @@ export default function HomePage() {
       ></div>
 
       <main className="flex max-w-6xl w-full h-full">
+        {isDesktop && (
+          <div className="absolute top-4 left-4 right-4 z-10">
+            <SearchBar onMovieSelect={handleMovieSelect} />
+          </div>
+        )}
+        
         {isDesktop ? (
           <div className="flex w-full h-full">
             {/* Movie Card on the Left */}

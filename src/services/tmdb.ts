@@ -1,4 +1,7 @@
-const TMDB_API_KEY = '559819d48b95a2e3440df0504dea30fd';
+// Vite uses import.meta.env for environment variables
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
