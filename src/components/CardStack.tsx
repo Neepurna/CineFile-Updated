@@ -285,11 +285,12 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                   <div className={`absolute inset-0 rounded-xl shadow-xl overflow-hidden bg-gray-800 backface-hidden ${isFlipped ? 'pointer-events-none' : ''}`}>
                     {movie.poster_path ? (
                       <img
-                        src={`/image-proxy${movie.poster_path}`}
-                        alt={movie.title}
-                        className="w-full h-full object-cover"
-                        draggable={false}
-                      />
+                      // Use a utility function to construct the image URL
+                      src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} // Adjust 'w500' to the desired size
+                      alt={movie.title}
+                      className="w-full h-full object-cover"
+                      draggable={false}
+                    />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
                         No Image
