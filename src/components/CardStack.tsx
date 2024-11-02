@@ -12,6 +12,7 @@ interface CardStackProps {
 }
 
 const SWIPE_THRESHOLD = window.innerWidth * 0.25;
+const UP_SWIPE_THRESHOLD = window.innerHeight * 0.15; // Threshold for up swipe
 const ROTATION_FACTOR = 0.15;
 const LIFT_FACTOR = 1.1;
 const BUFFER_SIZE = 10;
@@ -71,18 +72,27 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
     }
   }, [movies.length, loadMoreMovies, removingCard]);
 
-  const handleCardExit = (index: number, direction: 'left' | 'right') => {
+  const handleCardExit = (index: number, direction: 'left' | 'right' | 'up') => {
     if (removingCard || flippedCard !== null) return;
     setRemovingCard(true);
 
-    const distance = window.innerWidth;
-    const multiplier = direction === 'left' ? -1.5 : 1.5;
+    let x = 0;
+    let y = 0;
     const rotation = (Math.random() - 0.5) * 60;
+
+    if (direction === 'left') {
+      x = -window.innerWidth * 1.5;
+    } else if (direction === 'right') {
+      x = window.innerWidth * 1.5;
+    } else if (direction === 'up') {
+      y = -window.innerHeight * 1.5; // Move the card upward
+    }
 
     api.start(i => {
       if (i === 0) {
         return {
-          x: distance * multiplier,
+          x,
+          y,
           rotateZ: rotation,
           scale: 0.5,
           opacity: 0,
@@ -169,7 +179,7 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
     }));
   };
 
-  const bind = useDrag(({ args: [index], active, movement: [mx], velocity, tap }) => {
+  const bind = useDrag(({ args: [index], active, movement: [mx, my], velocity, tap }) => {
     if (removingCard) return;
     
     if (tap) {
@@ -181,9 +191,12 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
 
     const trigger = velocity > 0.2;
     const horizontalSwipe = Math.abs(mx) > SWIPE_THRESHOLD;
+    const upwardSwipe = my < -UP_SWIPE_THRESHOLD;
 
-    if (!active && (horizontalSwipe || trigger)) {
-      if (mx > 0) { // Right swipe detected
+    if (!active && (horizontalSwipe || upwardSwipe || trigger)) {
+      if (upwardSwipe) { // Up swipe detected
+        handleCardExit(index, 'up');
+      } else if (mx > 0) { // Right swipe detected
         handleCardExit(index, 'right');
       } else { // Left swipe detected
         handleCardExit(index, 'left');
@@ -194,6 +207,7 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
           const rotateY = flippedCard === index ? 180 : 0;
           return {
             x: active ? mx : 0,
+            y: active ? my : 0,
             rotateZ: active ? mx * ROTATION_FACTOR : 0,
             scale: active ? LIFT_FACTOR : 1,
             rotateY,
@@ -257,8 +271,8 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                 key={movie.id}
                 style={{
                   transform: interpolate(
-                    [props.x],
-                    (x) => `translate3d(${x}px,0,0)`
+                    [props.x, props.y],
+                    (x, y) => `translate3d(${x}px,${y}px,0)`
                   ),
                   zIndex: props.zIndex,
                   opacity: props.opacity,
@@ -285,12 +299,11 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                   <div className={`absolute inset-0 rounded-xl shadow-xl overflow-hidden bg-gray-800 backface-hidden ${isFlipped ? 'pointer-events-none' : ''}`}>
                     {movie.poster_path ? (
                       <img
-                      // Use a utility function to construct the image URL
-                      src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} // Adjust 'w500' to the desired size
-                      alt={movie.title}
-                      className="w-full h-full object-cover"
-                      draggable={false}
-                    />
+                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
                         No Image
@@ -313,6 +326,8 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                         Swipe left to skip
                         <br />
                         Double tap to review
+                        <br />
+                        Swipe up to add to Watch List
                       </p>
                     </div>
                   </div>
