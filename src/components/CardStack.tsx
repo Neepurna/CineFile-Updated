@@ -12,7 +12,7 @@ interface CardStackProps {
 }
 
 const SWIPE_THRESHOLD = window.innerWidth * 0.25;
-const UP_SWIPE_THRESHOLD = window.innerHeight * 0.15; // Threshold for up swipe
+const DOWN_SWIPE_THRESHOLD = window.innerHeight * 0.15; // Threshold for down swipe
 const ROTATION_FACTOR = 0.15;
 const LIFT_FACTOR = 1.1;
 const BUFFER_SIZE = 10;
@@ -72,7 +72,7 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
     }
   }, [movies.length, loadMoreMovies, removingCard]);
 
-  const handleCardExit = (index: number, direction: 'left' | 'right' | 'up') => {
+  const handleCardExit = (index: number, direction: 'left' | 'right' | 'down') => {
     if (removingCard || flippedCard !== null) return;
     setRemovingCard(true);
 
@@ -84,8 +84,8 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
       x = -window.innerWidth * 1.5;
     } else if (direction === 'right') {
       x = window.innerWidth * 1.5;
-    } else if (direction === 'up') {
-      y = -window.innerHeight * 1.5; // Move the card upward
+    } else if (direction === 'down') {
+      y = window.innerHeight * 1.5; // Move the card downward
     }
 
     api.start(i => {
@@ -191,11 +191,11 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
 
     const trigger = velocity > 0.2;
     const horizontalSwipe = Math.abs(mx) > SWIPE_THRESHOLD;
-    const upwardSwipe = my < -UP_SWIPE_THRESHOLD;
+    const downwardSwipe = my > DOWN_SWIPE_THRESHOLD; // Detect downward swipe
 
-    if (!active && (horizontalSwipe || upwardSwipe || trigger)) {
-      if (upwardSwipe) { // Up swipe detected
-        handleCardExit(index, 'up');
+    if (!active && (horizontalSwipe || downwardSwipe || trigger)) {
+      if (downwardSwipe) { // Down swipe detected
+        handleCardExit(index, 'down');
       } else if (mx > 0) { // Right swipe detected
         handleCardExit(index, 'right');
       } else { // Left swipe detected
@@ -327,7 +327,7 @@ export default function CardStack({ onWatched, onNotWatched, onReview }: CardSta
                         <br />
                         Double tap to review
                         <br />
-                        Swipe up to add to Watch List
+                        Swipe down to add to Watch List
                       </p>
                     </div>
                   </div>
